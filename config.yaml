@@ -2,6 +2,6 @@ sources:
   locations: data/locations.csv
   devices: data/devices.csv
 
-addr: :5000
+addr: :80
 
 log: debug
