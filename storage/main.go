@@ -3,9 +3,10 @@ package storage
 import (
 	"encoding/csv"
 	"encoding/json"
-	"github.com/geo-provider/utils"
-	"github.com/pkg/errors"
 	"os"
+
+	"github.com/GeoDB-Limited/geo-provider/utils"
+	"github.com/pkg/errors"
 )
 
 const (

@@ -1,7 +1,15 @@
-sources:
-  locations: data/locations.csv
-  devices: data/devices.csv
+log:
+  disable_sentry: true
 
-addr: :80
+db:
+  url: db_url
 
-log: debug
+listener:
+  addr: :8000 # TODO configure and rm this TODO
+
+cop:
+  disabled: true
+  endpoint: "http://..."
+  upstream: "http://..."
+  service_name: geo-provider
+  service_port: 80

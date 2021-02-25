@@ -1,14 +1,15 @@
 package app
 
 import (
-	"github.com/geo-provider/app/ctx"
-	"github.com/geo-provider/app/handlers"
-	"github.com/geo-provider/app/logging"
-	"github.com/geo-provider/config"
+	"net/http"
+
+	"github.com/GeoDB-Limited/geo-provider/app/ctx"
+	"github.com/GeoDB-Limited/geo-provider/app/handlers"
+	"github.com/GeoDB-Limited/geo-provider/app/logging"
+	"github.com/GeoDB-Limited/geo-provider/config"
 	"github.com/go-chi/chi"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"net/http"
 )
 
 type App interface {

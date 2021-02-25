@@ -2,11 +2,12 @@ package config
 
 import (
 	"fmt"
-	"github.com/geo-provider/utils"
+	"io/ioutil"
+
+	"github.com/GeoDB-Limited/geo-provider/utils"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 )
 
 type Config interface {

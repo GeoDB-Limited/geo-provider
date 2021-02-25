@@ -2,9 +2,10 @@ package ctx
 
 import (
 	"context"
-	"github.com/geo-provider/config"
-	"github.com/sirupsen/logrus"
 	"net/http"
+
+	"github.com/GeoDB-Limited/geo-provider/config"
+	"github.com/sirupsen/logrus"
 )
 
 const (

@@ -1,13 +1,14 @@
 package handlers
 
 import (
-	"github.com/geo-provider/app/ctx"
-	"github.com/geo-provider/app/render"
-	"github.com/geo-provider/storage"
-	"github.com/geo-provider/utils"
-	"github.com/go-chi/chi"
 	"net/http"
 	"strconv"
+
+	"github.com/GeoDB-Limited/geo-provider/app/ctx"
+	"github.com/GeoDB-Limited/geo-provider/app/render"
+	"github.com/GeoDB-Limited/geo-provider/storage"
+	"github.com/GeoDB-Limited/geo-provider/utils"
+	"github.com/go-chi/chi"
 )
 
 func GetSources(w http.ResponseWriter, r *http.Request) {

@@ -1,10 +1,11 @@
 package logging
 
 import (
-	"github.com/geo-provider/app/render"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
+
+	"github.com/GeoDB-Limited/geo-provider/app/render"
+	"github.com/sirupsen/logrus"
 )
 
 func Middleware(logger *logrus.Logger) func(http.Handler) http.Handler {
