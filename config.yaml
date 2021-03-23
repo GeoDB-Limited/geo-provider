@@ -5,6 +5,6 @@ sources:
 owners:
   - odin1nnfeguq30x6nwxjhaypxymx3nulyspsuja4a2x
 
-addr: :5000
+addr: :80
 
 log: debug
