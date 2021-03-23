@@ -10,6 +10,7 @@ import (
 )
 
 type Config interface {
+	IsOwner(string) bool
 	Source(string) string
 	ListSources() []string
 	Listener() string
@@ -18,6 +19,7 @@ type Config interface {
 
 type config struct {
 	Sources map[string]string `yaml:"sources"`
+	Owners  []string          `yaml:"owners"`
 	Addr    string            `yaml:"addr"`
 	Log     string            `yaml:"log"`
 }
@@ -62,4 +64,14 @@ func (c *config) Logger() *logrus.Logger {
 	logger := logrus.New()
 	logger.SetLevel(level)
 	return logger
+}
+
+func (c *config) IsOwner(owner string) bool {
+	for _, o := range c.Owners {
+		if o == owner {
+			return true
+		}
+	}
+
+	return false
 }

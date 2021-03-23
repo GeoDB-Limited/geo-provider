@@ -53,7 +53,7 @@ func (a *app) router() chi.Router {
 	)
 
 	router.Get("/geo/sources", handlers.GetSources)
-	router.Get("/geo/data/{source}", handlers.GetData)
+	router.Get("/geo/data/{owner}/{source}", handlers.GetData)
 
 	return router
 }

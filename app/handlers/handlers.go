@@ -19,6 +19,17 @@ func GetSources(w http.ResponseWriter, r *http.Request) {
 func GetData(w http.ResponseWriter, r *http.Request) {
 	log := ctx.Log(r)
 
+	owner := chi.URLParam(r, "owner")
+	if owner == "" {
+		render.Respond(w, http.StatusForbidden, render.Message("Owner address is empty"))
+		return
+	}
+
+	if !ctx.Config(r).IsOwner(owner) {
+		render.Respond(w, http.StatusForbidden, render.Message("Owner is not in the list of allowance"))
+		return
+	}
+
 	source := chi.URLParam(r, "source")
 	if source == "" {
 		render.Respond(w, http.StatusBadRequest, render.Message("Not Found"))

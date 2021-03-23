@@ -2,6 +2,9 @@ sources:
   locations: data/locations.csv
   devices: data/devices.csv
 
-addr: :80
+owners:
+  - odin1nnfeguq30x6nwxjhaypxymx3nulyspsuja4a2x
+
+addr: :5000
 
 log: debug
