@@ -1,1 +1,6 @@
-data
+# IDE files
+.idea/
+# Initial data
+data/*.csv
+# Local config
+config.*.yaml

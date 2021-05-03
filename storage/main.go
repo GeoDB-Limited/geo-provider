@@ -13,7 +13,7 @@ const (
 )
 
 type Keeper interface {
-	// reads storage file [0 + offset:0 + offset + count)
+	// Read reads storage file [0 + offset:0 + offset + count)
 	Read(offset, count int) ([]json.RawMessage, error)
 }
 
