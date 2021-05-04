@@ -1,7 +1,8 @@
 -- +migrate Up
 create table devices
 (
-    address         text      not null unique,
+    id              bigserial,
+    address         text      not null,
     uuid            uuid      not null,
     os              text      not null,
     model           text      not null,
@@ -12,19 +13,20 @@ create table devices
     time            date      not null,
     timestamp       timestamp not null,
     date            date      not null,
-    PRIMARY KEY (address)
+    PRIMARY KEY (id)
 );
 
 create table locations
 (
-    address   text      not null unique,
+    id        bigserial,
+    address   text      not null,
     latitude  decimal   not null,
     longitude decimal   not null,
     altitude  decimal   not null,
     time      date      not null,
     timestamp timestamp not null,
     date      date      not null,
-    PRIMARY KEY (address)
+    PRIMARY KEY (id)
 );
 
 -- +migrate Down

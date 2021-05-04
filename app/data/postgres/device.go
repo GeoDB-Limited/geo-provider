@@ -2,9 +2,9 @@ package postgres
 
 import (
 	"database/sql"
-	sq "github.com/Masterminds/squirrel"
+	"github.com/Masterminds/squirrel"
 	"github.com/geo-provider/app/data"
-	"github.com/geo-provider/config"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -12,26 +12,54 @@ const (
 	all          = "*"
 )
 
-type devicesStorage struct {
-	db  *sql.DB
-	sql sq.SelectBuilder
+type DevicesStorage struct {
+	db *sql.DB
 }
 
-type DevicesStorage interface {
-	Select() ([]data.Device, error)
+func (s *DevicesStorage) New() data.DevicesStorage {
+	return NewDevicesStorage(s.db)
 }
 
-var devicesSelect = sq.Select(all).From(devicesTable).PlaceholderFormat(sq.Dollar)
-
-func NewDevicesStorage(cfg config.Config) DevicesStorage {
-	return &devicesStorage{
-		db:  cfg.Databaser(),
-		sql: devicesSelect.RunWith(cfg.Databaser()),
+func NewDevicesStorage(db *sql.DB) data.DevicesStorage {
+	return &DevicesStorage{
+		db: db,
 	}
 }
 
-func (s *devicesStorage) Select() ([]data.Device, error) {
-	rows, err := s.sql.Query()
+func (s *DevicesStorage) Insert(device data.Device) error {
+	query := squirrel.Insert(devicesTable).PlaceholderFormat(squirrel.Dollar).Columns(
+		"address",
+		"uuid",
+		"os",
+		"model",
+		"locale",
+		"apps",
+		"version",
+		"time",
+		"timestamp",
+		"date",
+		"geocash_version",
+	).Values(
+		device.Address,
+		device.UUID,
+		device.OS,
+		device.Model,
+		device.Locale,
+		device.Apps,
+		device.Version,
+		device.Time,
+		device.Timestamp,
+		device.Date,
+		device.GeocashVersion,
+	).RunWith(s.db)
+
+	_, err := query.Exec()
+	return errors.Wrap(err, "failed to insert device")
+}
+
+func (s *DevicesStorage) Select() ([]data.Device, error) {
+	query := squirrel.Select(all).From(devicesTable).PlaceholderFormat(squirrel.Dollar).RunWith(s.db)
+	rows, err := query.Query()
 	if err != nil {
 		panic(err)
 	}

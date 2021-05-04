@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/geo-provider/app/data/migrate"
 	"github.com/geo-provider/utils"
+	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -17,7 +18,7 @@ type Config interface {
 	ListSources() []string
 	Listener() string
 	Logger() *logrus.Logger
-	Databaser() *sql.DB
+	DB() *sql.DB
 }
 
 type config struct {
@@ -83,7 +84,7 @@ func (c *config) IsOwner(owner string) bool {
 	return false
 }
 
-func (c *config) Databaser() *sql.DB {
+func (c *config) DB() *sql.DB {
 	db, err := sql.Open("postgres", c.Database.URL)
 	if err != nil {
 		panic(err)

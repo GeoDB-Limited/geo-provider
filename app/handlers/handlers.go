@@ -3,8 +3,6 @@ package handlers
 import (
 	"github.com/geo-provider/app/ctx"
 	"github.com/geo-provider/app/render"
-	"github.com/geo-provider/storage"
-	"github.com/geo-provider/utils"
 	"github.com/go-chi/chi"
 	"net/http"
 	"strconv"
@@ -43,8 +41,7 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	offset, count := 0, storage.MaxReadRows
-
+	var offset, count int
 	offsetRaw, countRaw := r.URL.Query().Get("offset"), r.URL.Query().Get("count")
 
 	if offsetRaw != "" {
@@ -67,19 +64,8 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	keeper, err := storage.Open(srcPath)
-	if err != nil {
-		log.WithField("source_path", srcPath).WithError(err).Debug("storage path not found")
-		render.Respond(w, http.StatusInternalServerError, render.Message("Couldn't open storage"))
-		return
-	}
+	log.WithField("offset", offset).Info("offset")
+	log.WithField("count", count).Info("count")
 
-	resp, err := keeper.Read(offset, utils.Min(storage.MaxReadRows, count))
-	if err != nil {
-		log.WithError(err).Debug("failed to read source")
-		render.Respond(w, http.StatusInternalServerError, render.Message("Bad count value"))
-		return
-	}
-
-	render.Respond(w, http.StatusOK, render.Message(resp))
+	render.Respond(w, http.StatusOK, render.Message(count))
 }

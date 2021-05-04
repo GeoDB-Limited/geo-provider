@@ -2,33 +2,53 @@ package postgres
 
 import (
 	"database/sql"
-	sq "github.com/Masterminds/squirrel"
+	"github.com/Masterminds/squirrel"
 	"github.com/geo-provider/app/data"
-	"github.com/geo-provider/config"
+	"github.com/pkg/errors"
 )
 
-const locationsTable = "locations"
+const locationsTable = "Locations"
 
-type locationsStorage struct {
-	db  *sql.DB
-	sql sq.SelectBuilder
+type LocationsStorage struct {
+	db *sql.DB
 }
 
-type LocationsStorage interface {
-	Select() ([]data.Location, error)
+func (s *LocationsStorage) New() data.LocationsStorage {
+	return NewLocationsStorage(s.db)
 }
 
-var locationsSelect = sq.Select(all).From(locationsTable).PlaceholderFormat(sq.Dollar)
-
-func NewLocationsStorage(cfg config.Config) LocationsStorage {
-	return &locationsStorage{
-		db:  cfg.Databaser(),
-		sql: locationsSelect.RunWith(cfg.Databaser()),
+func NewLocationsStorage(db *sql.DB) data.LocationsStorage {
+	return &LocationsStorage{
+		db: db,
 	}
 }
 
-func (s *locationsStorage) Select() ([]data.Location, error) {
-	rows, err := s.sql.Query()
+func (s *LocationsStorage) Insert(location data.Location) error {
+	query := squirrel.Insert(locationsTable).PlaceholderFormat(squirrel.Dollar).Columns(
+		"address",
+		"latitude",
+		"longitude",
+		"altitude",
+		"time",
+		"timestamp",
+		"date",
+	).Values(
+		location.Address,
+		location.Latitude,
+		location.Longitude,
+		location.Altitude,
+		location.Time,
+		location.Timestamp,
+		location.Date,
+	).RunWith(s.db)
+
+	_, err := query.Exec()
+	return errors.Wrap(err, "failed to insert location")
+}
+
+func (s *LocationsStorage) Select() ([]data.Location, error) {
+	query := squirrel.Select(all).From(locationsTable).PlaceholderFormat(squirrel.Dollar).RunWith(s.db)
+	rows, err := query.Query()
 	if err != nil {
 		panic(err)
 	}
