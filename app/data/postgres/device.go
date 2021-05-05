@@ -57,9 +57,9 @@ func (s *DevicesStorage) Insert(device data.Device) error {
 	return errors.Wrap(err, "failed to insert device")
 }
 
-func (s *DevicesStorage) Select() ([]data.Device, error) {
-	query := squirrel.Select(all).From(devicesTable).PlaceholderFormat(squirrel.Dollar).RunWith(s.db)
-	rows, err := query.Query()
+func (s *DevicesStorage) Select(limit, offset uint64) ([]data.Device, error) {
+	query := squirrel.Select(all).From(devicesTable).PlaceholderFormat(squirrel.Dollar).Limit(limit).Offset(offset)
+	rows, err := query.RunWith(s.db).Query()
 	if err != nil {
 		panic(err)
 	}
@@ -69,6 +69,7 @@ func (s *DevicesStorage) Select() ([]data.Device, error) {
 	for rows.Next() {
 		model := data.Device{}
 		err := rows.Scan(
+			&model.ID,
 			&model.Address,
 			&model.UUID,
 			&model.OS,

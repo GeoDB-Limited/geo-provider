@@ -2,7 +2,7 @@ package utils
 
 import (
 	"encoding/csv"
-	"io"
+	"github.com/pkg/errors"
 	"os"
 )
 
@@ -15,45 +15,17 @@ func Keys(src map[string]string) []string {
 	return keys
 }
 
-func Min(a, b int) int {
-	if a < b {
-		return a
+func ReadCsv(path string) ([][]string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return [][]string{}, errors.Wrapf(err, "failed to open file: %s", path)
 	}
-	return b
-}
+	defer f.Close()
 
-func Max(a, b int) int {
-	if a < b {
-		return b
+	lines, err := csv.NewReader(f).ReadAll()
+	if err != nil {
+		return [][]string{}, errors.Wrapf(err, "failed to read file: %s", path)
 	}
-	return a
-}
 
-func FileExists(path string) bool {
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
-}
-
-func CSVToMap(r *csv.Reader) ([]map[string]string, error) {
-	rows := make([]map[string]string, 0)
-	var header []string
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-		if header == nil {
-			header = record
-		} else {
-			dict := map[string]string{}
-			for i := range header {
-				dict[header[i]] = record[i]
-			}
-			rows = append(rows, dict)
-		}
-	}
-	return rows, nil
+	return lines, nil
 }

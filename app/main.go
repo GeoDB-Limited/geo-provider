@@ -41,7 +41,7 @@ func (a *app) Run() error {
 		}
 	}()
 	a.log.WithField("port", a.config.Listener()).Info("Starting server")
-	go a.migrateData()
+	a.migrateDataFromCSV()
 	err := http.ListenAndServe(a.config.Listener(), a.router())
 	return errors.Wrap(err, "listener failed")
 }
@@ -54,6 +54,8 @@ func (a *app) router() chi.Router {
 		ctx.Middleware(
 			ctx.CtxLog(a.log),
 			ctx.CtxConfig(a.config),
+			ctx.CtxLocations(a.db.Locations()),
+			ctx.CtxDevices(a.db.Devices()),
 		),
 	)
 
@@ -63,40 +65,33 @@ func (a *app) router() chi.Router {
 	return router
 }
 
-func (a *app) migrateData() {
-	if err := a.migrateDevicesFromCSV(); err != nil {
-		panic(errors.Wrap(err, "failed to migrate devices data from CSV"))
-	}
-	a.log.Info("Finished migrating devices data")
+func (a *app) migrateDataFromCSV() {
+	go a.migrateDevicesFromCSV()
+	go a.migrateLocationsFromCSV()
+}
 
-	if err := a.migrateLocationsFromCSV(); err != nil {
-		panic(errors.Wrap(err, "failed to migrate locations data from CSV"))
+func (a *app) migrateLocationsFromCSV() {
+	locations, err := a.csv.SelectLocationsFromCSV()
+	if err != nil {
+		panic(errors.Wrap(err, "failed to parse locations"))
+	}
+	for _, location := range locations {
+		if err := a.db.Locations().Insert(location); err != nil {
+			panic(errors.Wrap(err, "failed to insert location data"))
+		}
 	}
 	a.log.Info("Finished migrating locations data")
 }
 
-func (a *app) migrateLocationsFromCSV() error {
-	locations, err := a.csv.SelectLocationsFromCSV()
-	if err != nil {
-		return errors.Wrap(err, "failed to parse locations")
-	}
-	for _, location := range locations {
-		if err := a.db.Locations().Insert(location); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (a *app) migrateDevicesFromCSV() error {
+func (a *app) migrateDevicesFromCSV() {
 	devices, err := a.csv.SelectDevicesFromCSV()
 	if err != nil {
-		return errors.Wrap(err, "failed to parse devices")
+		panic(errors.Wrap(err, "failed to parse devices"))
 	}
 	for _, device := range devices {
 		if err := a.db.Devices().Insert(device); err != nil {
-			return err
+			panic(errors.Wrap(err, "failed to insert device data"))
 		}
 	}
-	return nil
+	a.log.Info("Finished migrating devices data")
 }

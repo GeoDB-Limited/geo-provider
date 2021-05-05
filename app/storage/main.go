@@ -1,12 +1,11 @@
 package storage
 
 import (
-	"encoding/csv"
 	"github.com/geo-provider/app/data"
 	"github.com/geo-provider/config"
+	"github.com/geo-provider/utils"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"os"
 	"strconv"
 	"time"
 )
@@ -15,8 +14,8 @@ const (
 	timeLayout = "2006-01-02 15:04:05 MST"
 	dateLayout = "2006-01-02"
 
-	locationsStorageKey = "locations"
-	devicesStorageKey   = "devices"
+	LocationsStorageKey = "locations"
+	DevicesStorageKey   = "devices"
 )
 
 type Storage interface {
@@ -35,8 +34,8 @@ func New(cfg config.Config) Storage {
 }
 
 func (s *storage) SelectLocationsFromCSV() ([]data.Location, error) {
-	filePath := s.config.Source(locationsStorageKey)
-	lines, err := s.ReadCsv(filePath)
+	filePath := s.config.Source(LocationsStorageKey)
+	lines, err := utils.ReadCsv(filePath)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to read locations from %s", filePath)
 	}
@@ -90,8 +89,8 @@ func (s *storage) ParseLocations(lines [][]string) ([]data.Location, error) {
 }
 
 func (s *storage) SelectDevicesFromCSV() ([]data.Device, error) {
-	filePath := s.config.Source(devicesStorageKey)
-	lines, err := s.ReadCsv(filePath)
+	filePath := s.config.Source(DevicesStorageKey)
+	lines, err := utils.ReadCsv(filePath)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to read devices from %s", filePath)
 	}
@@ -138,19 +137,4 @@ func (s *storage) ParseDevices(lines [][]string) ([]data.Device, error) {
 	}
 
 	return devices, nil
-}
-
-func (s *storage) ReadCsv(path string) ([][]string, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return [][]string{}, errors.Wrapf(err, "failed to open file: %s", path)
-	}
-	defer f.Close()
-
-	lines, err := csv.NewReader(f).ReadAll()
-	if err != nil {
-		return [][]string{}, errors.Wrapf(err, "failed to read file: %s", path)
-	}
-
-	return lines, nil
 }

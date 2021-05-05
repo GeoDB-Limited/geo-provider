@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const locationsTable = "Locations"
+const locationsTable = "locations"
 
 type LocationsStorage struct {
 	db *sql.DB
@@ -40,15 +40,14 @@ func (s *LocationsStorage) Insert(location data.Location) error {
 		location.Time,
 		location.Timestamp,
 		location.Date,
-	).RunWith(s.db)
-
-	_, err := query.Exec()
+	)
+	_, err := query.RunWith(s.db).Exec()
 	return errors.Wrap(err, "failed to insert location")
 }
 
-func (s *LocationsStorage) Select() ([]data.Location, error) {
-	query := squirrel.Select(all).From(locationsTable).PlaceholderFormat(squirrel.Dollar).RunWith(s.db)
-	rows, err := query.Query()
+func (s *LocationsStorage) Select(limit, offset uint64) ([]data.Location, error) {
+	query := squirrel.Select(all).From(locationsTable).PlaceholderFormat(squirrel.Dollar).Limit(limit).Offset(offset)
+	rows, err := query.RunWith(s.db).Query()
 	if err != nil {
 		panic(err)
 	}
@@ -58,6 +57,7 @@ func (s *LocationsStorage) Select() ([]data.Location, error) {
 	for rows.Next() {
 		model := data.Location{}
 		err := rows.Scan(
+			&model.ID,
 			&model.Address,
 			&model.Latitude,
 			&model.Longitude,

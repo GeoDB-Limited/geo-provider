@@ -4,5 +4,3 @@
 data/*.csv
 # Local config
 config.*.yaml
-
-docker-compose.yaml

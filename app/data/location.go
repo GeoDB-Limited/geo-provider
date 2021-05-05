@@ -6,16 +6,17 @@ import (
 
 type LocationsStorage interface {
 	New() LocationsStorage
-	Select() ([]Location, error)
-	Insert(Location) error
+	Select(limit, offset uint64) ([]Location, error)
+	Insert(location Location) error
 }
 
 type Location struct {
-	Address   string    `db:"address"`
-	Latitude  float64   `db:"latitude"`
-	Longitude float64   `db:"longitude"`
-	Altitude  float64   `db:"altitude"`
-	Time      time.Time `db:"time"`
-	Timestamp time.Time `db:"timestamp"`
-	Date      time.Time `db:"date"`
+	ID        int64     `db:"id" json:"id"`
+	Address   string    `db:"address" json:"address"`
+	Latitude  float64   `db:"latitude" json:"latitude"`
+	Longitude float64   `db:"longitude" json:"longitude"`
+	Altitude  float64   `db:"altitude" json:"altitude"`
+	Time      time.Time `db:"time" json:"time"`
+	Timestamp time.Time `db:"timestamp" json:"timestamp"`
+	Date      time.Time `db:"date" json:"date"`
 }

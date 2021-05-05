@@ -9,10 +9,10 @@ create table devices
     locale          text      not null,
     apps            text      not null,
     version         text      not null,
-    geocash_version text      not null,
     time            date      not null,
     timestamp       timestamp not null,
     date            date      not null,
+    geocash_version text      not null,
     PRIMARY KEY (id)
 );
 
