@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/Masterminds/squirrel v1.5.0
+	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/go-chi/chi v1.5.1
 	github.com/gobuffalo/packr/v2 v2.8.1
 	github.com/google/uuid v1.2.0

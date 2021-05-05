@@ -2,8 +2,8 @@ package ctx
 
 import (
 	"context"
-	"github.com/geo-provider/app/data"
-	"github.com/geo-provider/config"
+	config2 "github.com/geo-provider/internal/config"
+	"github.com/geo-provider/internal/data"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
@@ -15,14 +15,14 @@ const (
 	deviceCtxKey
 )
 
-func CtxConfig(cfg config.Config) func(context.Context) context.Context {
+func CtxConfig(cfg config2.Config) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
 		return context.WithValue(ctx, ctxConfig, cfg)
 	}
 }
 
-func Config(r *http.Request) config.Config {
-	return r.Context().Value(ctxConfig).(config.Config)
+func Config(r *http.Request) config2.Config {
+	return r.Context().Value(ctxConfig).(config2.Config)
 }
 
 func CtxLog(log *logrus.Logger) func(context.Context) context.Context {

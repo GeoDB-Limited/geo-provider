@@ -1,7 +1,7 @@
 package logging
 
 import (
-	"github.com/geo-provider/app/render"
+	render2 "github.com/geo-provider/internal/services/api/render"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"
@@ -13,7 +13,7 @@ func Middleware(logger *logrus.Logger) func(http.Handler) http.Handler {
 			defer func() {
 				if rvr := recover(); rvr != nil {
 					logger.Error("Something bad happened\n", rvr)
-					render.Respond(w, http.StatusInternalServerError, render.Message("Something Bad Happened"))
+					render2.Respond(w, http.StatusInternalServerError, render2.Message("Something Bad Happened"))
 				}
 			}()
 

@@ -3,7 +3,7 @@ package postgres
 import (
 	"database/sql"
 	"github.com/Masterminds/squirrel"
-	"github.com/geo-provider/app/data"
+	"github.com/geo-provider/internal/data"
 	"github.com/pkg/errors"
 )
 

@@ -9,6 +9,4 @@ addr: :5000
 
 log: debug
 
-db:
-  migrate: up
-  url: <secret_postgres_db:path>
+db_url: <secret_postgres_db:path>

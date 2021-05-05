@@ -3,8 +3,7 @@ package config
 import (
 	"database/sql"
 	"fmt"
-	"github.com/geo-provider/app/data/migrate"
-	"github.com/geo-provider/utils"
+	utils2 "github.com/geo-provider/internal/utils"
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -22,14 +21,11 @@ type Config interface {
 }
 
 type config struct {
-	Sources  map[string]string `yaml:"sources"`
-	Owners   []string          `yaml:"owners"`
-	Addr     string            `yaml:"addr"`
-	Log      string            `yaml:"log"`
-	Database struct {
-		URL     string `yaml:"url"`
-		Migrate string `yaml:"migrate"`
-	} `yaml:"db"`
+	Sources     map[string]string `yaml:"sources"`
+	Owners      []string          `yaml:"owners"`
+	Addr        string            `yaml:"addr"`
+	Log         string            `yaml:"log"`
+	DatabaseURL string            `yaml:"db_url"`
 }
 
 func New(path string) Config {
@@ -56,7 +52,7 @@ func (c *config) Source(name string) string {
 }
 
 func (c *config) ListSources() []string {
-	return utils.Keys(c.Sources)
+	return utils2.Keys(c.Sources)
 }
 
 func (c *config) Listener() string {
@@ -85,31 +81,12 @@ func (c *config) IsOwner(owner string) bool {
 }
 
 func (c *config) DB() *sql.DB {
-	db, err := sql.Open("postgres", c.Database.URL)
+	db, err := sql.Open("postgres", c.DatabaseURL)
 	if err != nil {
 		panic(err)
 	}
-
-	switch c.Database.Migrate {
-	case migrate.Up:
-		applied, err := migrate.MigrateUp(db)
-		if err != nil {
-			panic(err)
-		}
-		c.Logger().WithField("applied", applied).Info("Migrations up applied")
-	case migrate.Down:
-		applied, err := migrate.MigrateDown(db)
-		if err != nil {
-			panic(err)
-		}
-		c.Logger().WithField("applied", applied).Info("Migrations down applied")
-	default:
-		panic("Unknown migration method")
-	}
-
 	if err := db.Ping(); err != nil {
 		panic(errors.Wrap(err, "database unavailable"))
 	}
-
 	return db
 }
