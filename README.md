@@ -1,16 +1,24 @@
 # geo-provider
 
+
+**RUN:** <br>
+```
+$ geo-provider migrate up   // to migrate db
+$ geo-provider run migrator // to migrate data from csv to db
+$ geo-provider run api      // to run api service
+```
+
 **REQUESTS:** <br>
+
 * /geo/sources <br>
-Response: 
+  Response:
   ```json
   {
     "message": ["locations","devices"] # list of all available sources
   } 
   ```
-  
-* /geo/data/{source}?count=1&offset=3
-Response: 
+
+* /geo/data/{source}?count=1&offset=3 Response:
   ```json
     {
         "message": [
@@ -29,4 +37,5 @@ Response:
             }
         ]
     }
+
 ```
