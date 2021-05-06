@@ -20,3 +20,16 @@ type Location struct {
 	Timestamp time.Time `db:"timestamp" json:"timestamp"`
 	Date      time.Time `db:"date" json:"date"`
 }
+
+func (l Location) ToMap() map[string]interface{} {
+	result := map[string]interface{}{
+		"address":   l.Address,
+		"latitude":  l.Latitude,
+		"longitude": l.Longitude,
+		"altitude":  l.Altitude,
+		"time":      l.Time,
+		"timestamp": l.Timestamp,
+		"date":      l.Date,
+	}
+	return result
+}

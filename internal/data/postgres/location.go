@@ -23,24 +23,8 @@ func NewLocationsStorage(db *sql.DB) data.LocationsStorage {
 	}
 }
 
-func (s *LocationsStorage) Insert(location data.Location) error {
-	query := squirrel.Insert(locationsTable).PlaceholderFormat(squirrel.Dollar).Columns(
-		"address",
-		"latitude",
-		"longitude",
-		"altitude",
-		"time",
-		"timestamp",
-		"date",
-	).Values(
-		location.Address,
-		location.Latitude,
-		location.Longitude,
-		location.Altitude,
-		location.Time,
-		location.Timestamp,
-		location.Date,
-	)
+func (s *LocationsStorage) Insert(value data.Location) error {
+	query := squirrel.Insert(locationsTable).PlaceholderFormat(squirrel.Dollar).SetMap(value.ToMap())
 	_, err := query.RunWith(s.db).Exec()
 	return errors.Wrap(err, "failed to insert location")
 }

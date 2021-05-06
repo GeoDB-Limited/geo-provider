@@ -25,3 +25,20 @@ type Device struct {
 	Date           time.Time `db:"date" json:"date"`
 	GeocashVersion string    `db:"geocash_version" json:"geocash_version"`
 }
+
+func (d Device) ToMap() map[string]interface{} {
+	result := map[string]interface{}{
+		"address":         d.Address,
+		"uuid":            d.UUID,
+		"os":              d.OS,
+		"model":           d.Model,
+		"locale":          d.Locale,
+		"apps":            d.Apps,
+		"version":         d.Version,
+		"time":            d.Time,
+		"timestamp":       d.Timestamp,
+		"date":            d.Date,
+		"geocash_version": d.GeocashVersion,
+	}
+	return result
+}

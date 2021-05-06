@@ -1,7 +1,7 @@
 package migrator
 
 import (
-	config2 "github.com/geo-provider/internal/config"
+	"github.com/geo-provider/internal/config"
 	"github.com/geo-provider/internal/data"
 	"github.com/geo-provider/internal/data/postgres"
 	"github.com/geo-provider/internal/storage"
@@ -15,12 +15,12 @@ type Service interface {
 
 type service struct {
 	log    *logrus.Logger
-	config config2.Config
+	config config.Config
 	db     data.Storage
 	csv    storage.Storage
 }
 
-func New(cfg config2.Config) Service {
+func New(cfg config.Config) Service {
 	return &service{
 		config: cfg,
 		log:    cfg.Logger(),

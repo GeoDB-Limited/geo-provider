@@ -3,7 +3,7 @@ package config
 import (
 	"database/sql"
 	"fmt"
-	utils2 "github.com/geo-provider/internal/utils"
+	"github.com/geo-provider/internal/utils"
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -52,7 +52,7 @@ func (c *config) Source(name string) string {
 }
 
 func (c *config) ListSources() []string {
-	return utils2.Keys(c.Sources)
+	return utils.Keys(c.Sources)
 }
 
 func (c *config) Listener() string {

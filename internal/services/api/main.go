@@ -1,12 +1,12 @@
 package api
 
 import (
-	config2 "github.com/geo-provider/internal/config"
+	"github.com/geo-provider/internal/config"
 	"github.com/geo-provider/internal/data"
 	"github.com/geo-provider/internal/data/postgres"
-	ctx2 "github.com/geo-provider/internal/services/api/ctx"
-	handlers2 "github.com/geo-provider/internal/services/api/handlers"
-	logging2 "github.com/geo-provider/internal/services/api/logging"
+	"github.com/geo-provider/internal/services/api/ctx"
+	"github.com/geo-provider/internal/services/api/handlers"
+	"github.com/geo-provider/internal/services/api/logging"
 	"github.com/go-chi/chi"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -19,11 +19,11 @@ type API interface {
 
 type api struct {
 	log    *logrus.Logger
-	config config2.Config
+	config config.Config
 	db     data.Storage
 }
 
-func New(cfg config2.Config) API {
+func New(cfg config.Config) API {
 	return &api{
 		config: cfg,
 		log:    cfg.Logger(),
@@ -46,17 +46,17 @@ func (a *api) router() chi.Router {
 	router := chi.NewRouter()
 
 	router.Use(
-		logging2.Middleware(a.log),
-		ctx2.Middleware(
-			ctx2.CtxLog(a.log),
-			ctx2.CtxConfig(a.config),
-			ctx2.CtxLocations(a.db.Locations()),
-			ctx2.CtxDevices(a.db.Devices()),
+		logging.Middleware(a.log),
+		ctx.Middleware(
+			ctx.CtxLog(a.log),
+			ctx.CtxConfig(a.config),
+			ctx.CtxLocations(a.db.Locations()),
+			ctx.CtxDevices(a.db.Devices()),
 		),
 	)
 
-	router.Get("/geo/sources", handlers2.GetSources)
-	router.Get("/geo/data/{owner}/{source}", handlers2.GetData)
+	router.Get("/geo/sources", handlers.GetSources)
+	router.Get("/geo/data/{owner}/{source}", handlers.GetData)
 
 	return router
 }

@@ -26,34 +26,9 @@ func NewDevicesStorage(db *sql.DB) data.DevicesStorage {
 	}
 }
 
-func (s *DevicesStorage) Insert(device data.Device) error {
-	query := squirrel.Insert(devicesTable).PlaceholderFormat(squirrel.Dollar).Columns(
-		"address",
-		"uuid",
-		"os",
-		"model",
-		"locale",
-		"apps",
-		"version",
-		"time",
-		"timestamp",
-		"date",
-		"geocash_version",
-	).Values(
-		device.Address,
-		device.UUID,
-		device.OS,
-		device.Model,
-		device.Locale,
-		device.Apps,
-		device.Version,
-		device.Time,
-		device.Timestamp,
-		device.Date,
-		device.GeocashVersion,
-	).RunWith(s.db)
-
-	_, err := query.Exec()
+func (s *DevicesStorage) Insert(value data.Device) error {
+	query := squirrel.Insert(devicesTable).PlaceholderFormat(squirrel.Dollar).SetMap(value.ToMap())
+	_, err := query.RunWith(s.db).Exec()
 	return errors.Wrap(err, "failed to insert device")
 }
 
