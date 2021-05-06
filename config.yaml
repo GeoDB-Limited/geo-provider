@@ -5,6 +5,8 @@ sources:
 owners:
   - odin1nnfeguq30x6nwxjhaypxymx3nulyspsuja4a2x
 
-addr: :80
+addr: :5000
 
 log: debug
+
+db_url: <secret_postgres_db:path>

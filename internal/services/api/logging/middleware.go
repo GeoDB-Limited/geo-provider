@@ -1,7 +1,7 @@
 package logging
 
 import (
-	"github.com/geo-provider/app/render"
+	"github.com/geo-provider/internal/services/api/render"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"time"

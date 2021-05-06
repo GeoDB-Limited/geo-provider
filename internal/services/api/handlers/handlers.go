@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"github.com/geo-provider/app/ctx"
-	"github.com/geo-provider/app/render"
-	"github.com/geo-provider/storage"
-	"github.com/geo-provider/utils"
+	"github.com/geo-provider/internal/services/api/ctx"
+	"github.com/geo-provider/internal/services/api/render"
+	"github.com/geo-provider/internal/storage"
 	"github.com/go-chi/chi"
 	"net/http"
 	"strconv"
 )
+
+const DefaultRawsCount = 100
 
 func GetSources(w http.ResponseWriter, r *http.Request) {
 	storagesList := ctx.Config(r).ListSources()
@@ -24,7 +25,6 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		render.Respond(w, http.StatusForbidden, render.Message("Owner address is empty"))
 		return
 	}
-
 	if !ctx.Config(r).IsOwner(owner) {
 		render.Respond(w, http.StatusForbidden, render.Message("Owner is not in the list of allowance"))
 		return
@@ -36,30 +36,20 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var srcPath string
-	if srcPath = ctx.Config(r).Source(source); srcPath == "" {
-		log.WithField("source", source).Debug("Provided source not found")
-		render.Respond(w, http.StatusBadRequest, render.Message("Source Not Found"))
-		return
-	}
-
-	offset, count := 0, storage.MaxReadRows
-
+	var offset, count uint64 = 0, DefaultRawsCount
 	offsetRaw, countRaw := r.URL.Query().Get("offset"), r.URL.Query().Get("count")
-
 	if offsetRaw != "" {
 		var err error
-		offset, err = strconv.Atoi(offsetRaw)
+		offset, err = strconv.ParseUint(offsetRaw, 10, 64)
 		if err != nil {
 			log.WithField("offset", offsetRaw).WithError(err).Debug("Bad offset was provided")
 			render.Respond(w, http.StatusBadRequest, render.Message("Bad offset value"))
 			return
 		}
 	}
-
 	if countRaw != "" {
 		var err error
-		count, err = strconv.Atoi(countRaw)
+		count, err = strconv.ParseUint(countRaw, 10, 64)
 		if err != nil {
 			log.WithField("count", countRaw).WithError(err).Debug("Bad count was provided")
 			render.Respond(w, http.StatusBadRequest, render.Message("Bad count value"))
@@ -67,19 +57,24 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	keeper, err := storage.Open(srcPath)
-	if err != nil {
-		log.WithField("source_path", srcPath).WithError(err).Debug("storage path not found")
-		render.Respond(w, http.StatusInternalServerError, render.Message("Couldn't open storage"))
-		return
+	switch source {
+	case storage.LocationsStorageKey:
+		locations, err := ctx.Locations(r).Select(count, offset)
+		if err != nil {
+			log.WithError(err).Debug("Failed to select locations")
+			render.Respond(w, http.StatusInternalServerError, render.Message(err.Error()))
+			return
+		}
+		render.Respond(w, http.StatusOK, render.Message(locations))
+	case storage.DevicesStorageKey:
+		devices, err := ctx.Devices(r).Select(count, offset)
+		if err != nil {
+			log.WithError(err).Debug("Failed to select devices")
+			render.Respond(w, http.StatusInternalServerError, render.Message(err.Error()))
+			return
+		}
+		render.Respond(w, http.StatusOK, render.Message(devices))
+	default:
+		render.Respond(w, http.StatusBadRequest, render.Message("Source Not Found"))
 	}
-
-	resp, err := keeper.Read(offset, utils.Min(storage.MaxReadRows, count))
-	if err != nil {
-		log.WithError(err).Debug("failed to read source")
-		render.Respond(w, http.StatusInternalServerError, render.Message("Bad count value"))
-		return
-	}
-
-	render.Respond(w, http.StatusOK, render.Message(resp))
 }

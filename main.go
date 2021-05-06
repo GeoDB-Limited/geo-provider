@@ -1,15 +1,12 @@
 package main
 
 import (
-	"github.com/geo-provider/app"
-	"github.com/geo-provider/config"
+	"github.com/geo-provider/internal/cli"
 	"os"
 )
 
 func main() {
-	cfg := config.New(os.Getenv("CONFIG"))
-
-	if err := app.New(cfg).Run(); err != nil {
-		panic(err)
+	if !cli.Run(os.Args) {
+		os.Exit(1)
 	}
 }

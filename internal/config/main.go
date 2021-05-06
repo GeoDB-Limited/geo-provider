@@ -1,8 +1,10 @@
 package config
 
 import (
+	"database/sql"
 	"fmt"
-	"github.com/geo-provider/utils"
+	"github.com/geo-provider/internal/utils"
+	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -15,13 +17,15 @@ type Config interface {
 	ListSources() []string
 	Listener() string
 	Logger() *logrus.Logger
+	DB() *sql.DB
 }
 
 type config struct {
-	Sources map[string]string `yaml:"sources"`
-	Owners  []string          `yaml:"owners"`
-	Addr    string            `yaml:"addr"`
-	Log     string            `yaml:"log"`
+	Sources     map[string]string `yaml:"sources"`
+	Owners      []string          `yaml:"owners"`
+	Addr        string            `yaml:"addr"`
+	Log         string            `yaml:"log"`
+	DatabaseURL string            `yaml:"db_url"`
 }
 
 func New(path string) Config {
@@ -74,4 +78,15 @@ func (c *config) IsOwner(owner string) bool {
 	}
 
 	return false
+}
+
+func (c *config) DB() *sql.DB {
+	db, err := sql.Open("postgres", c.DatabaseURL)
+	if err != nil {
+		panic(err)
+	}
+	if err := db.Ping(); err != nil {
+		panic(errors.Wrap(err, "database unavailable"))
+	}
+	return db
 }
