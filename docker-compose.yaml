@@ -1,0 +1,36 @@
+version: "3.5"
+
+services:
+  geo-provider_migrator:
+    image: odinprotocol/geo-provider:testnet
+    depends_on:
+      - geo_db
+    restart: always
+    volumes:
+      - ./data:/go/app/data
+      - ./config.local.yaml:/go/app/config.yaml
+    command: sh -c "geo-provider migrate up && geo-provider run migrator"
+
+  geo-provider_api:
+    image: odinprotocol/geo-provider:testnet
+    depends_on:
+      - geo_db
+    restart: always
+    volumes:
+#      - ./data:/go/app/data
+      - ./config.local.yaml:/go/app/config.yaml
+    ports:
+      - 5006:5000
+    command: sh -c "geo-provider run api"
+
+  geo_db:
+    image: postgres:13.2
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+volumes:
+  database-data:
