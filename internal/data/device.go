@@ -8,7 +8,7 @@ import (
 type DevicesStorage interface {
 	New() DevicesStorage
 	Select(limit, offset uint64) ([]Device, error)
-	Insert(device Device) error
+	Insert(device ...Device) error
 }
 
 type Device struct {
