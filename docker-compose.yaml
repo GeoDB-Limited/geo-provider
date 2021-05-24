@@ -5,7 +5,7 @@ services:
     image: odinprotocol/geo-provider:testnet
     depends_on:
       - geo_db
-    restart: always
+    restart: on-failure
     volumes:
       - ./data:/go/app/data
       - ./config.local.yaml:/go/app/config.yaml
@@ -17,7 +17,7 @@ services:
       - geo_db
     restart: always
     volumes:
-#      - ./data:/go/app/data
+      # - ./data:/go/app/data
       - ./config.local.yaml:/go/app/config.yaml
     ports:
       - 5006:5000
