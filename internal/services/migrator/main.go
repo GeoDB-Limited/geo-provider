@@ -7,10 +7,11 @@ import (
 	"github.com/geo-provider/internal/storage"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"sync"
 )
 
 const (
-	PaginationRowsCount = 5000
+	PaginationRowsCount = 9000
 )
 
 type Service interface {
@@ -40,11 +41,20 @@ func (s *service) Run() {
 		}
 	}()
 	s.log.Info("Starting migrator service...")
-	s.migrateLocationsFromCSV()
-	s.migrateDevicesFromCSV()
+	s.migrateDataFromCSV()
 }
 
-func (s *service) migrateLocationsFromCSV() {
+func (s *service) migrateDataFromCSV() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go s.migrateLocationsFromCSV(&wg)
+	s.migrateDevicesFromCSV()
+	wg.Wait()
+}
+
+func (s *service) migrateLocationsFromCSV(wg *sync.WaitGroup) {
+	defer wg.Done()
+	s.log.Info("Started migrating locations data")
 	locations, err := s.csv.SelectLocationsFromCSV()
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse locations"))
@@ -65,6 +75,7 @@ func (s *service) migrateLocationsFromCSV() {
 }
 
 func (s *service) migrateDevicesFromCSV() {
+	s.log.Info("Started migrating devices data")
 	devices, err := s.csv.SelectDevicesFromCSV()
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse devices"))
