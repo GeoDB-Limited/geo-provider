@@ -7,6 +7,11 @@ import (
 	"github.com/geo-provider/internal/storage"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"sync"
+)
+
+const (
+	PaginationRowsCount = 9000
 )
 
 type Service interface {
@@ -36,31 +41,55 @@ func (s *service) Run() {
 		}
 	}()
 	s.log.Info("Starting migrator service...")
-	go s.migrateDevicesFromCSV()
-	s.migrateLocationsFromCSV()
+	s.migrateDataFromCSV()
 }
 
-func (s *service) migrateLocationsFromCSV() {
+func (s *service) migrateDataFromCSV() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go s.migrateLocationsFromCSV(&wg)
+	s.migrateDevicesFromCSV()
+	wg.Wait()
+}
+
+func (s *service) migrateLocationsFromCSV(wg *sync.WaitGroup) {
+	defer wg.Done()
+	s.log.Info("Started migrating locations data")
 	locations, err := s.csv.SelectLocationsFromCSV()
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse locations"))
 	}
-	for _, location := range locations {
-		if err := s.db.Locations().Insert(location); err != nil {
-			panic(errors.Wrap(err, "failed to insert location data"))
+	locationsCount := len(locations)
+	for i := 0; i < locationsCount; i += PaginationRowsCount {
+		var toInsert []data.Location
+		if i+PaginationRowsCount > locationsCount {
+			toInsert = locations[i:locationsCount]
+		} else {
+			toInsert = locations[i : i+PaginationRowsCount]
+		}
+		if err := s.db.Locations().Insert(toInsert...); err != nil {
+			panic(errors.Wrap(err, "failed to insert locations data"))
 		}
 	}
 	s.log.Info("Finished migrating locations data")
 }
 
 func (s *service) migrateDevicesFromCSV() {
+	s.log.Info("Started migrating devices data")
 	devices, err := s.csv.SelectDevicesFromCSV()
 	if err != nil {
 		panic(errors.Wrap(err, "failed to parse devices"))
 	}
-	for _, device := range devices {
-		if err := s.db.Devices().Insert(device); err != nil {
-			panic(errors.Wrap(err, "failed to insert device data"))
+	devicesCount := len(devices)
+	for i := 0; i < devicesCount; i += PaginationRowsCount {
+		var toInsert []data.Device
+		if i+PaginationRowsCount > devicesCount {
+			toInsert = devices[i:devicesCount]
+		} else {
+			toInsert = devices[i : i+PaginationRowsCount]
+		}
+		if err := s.db.Devices().Insert(toInsert...); err != nil {
+			panic(errors.Wrap(err, "failed to insert devices data"))
 		}
 	}
 	s.log.Info("Finished migrating devices data")

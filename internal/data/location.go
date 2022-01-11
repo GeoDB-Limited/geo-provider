@@ -7,7 +7,7 @@ import (
 type LocationsStorage interface {
 	New() LocationsStorage
 	Select(limit, offset uint64) ([]Location, error)
-	Insert(location Location) error
+	Insert(location ...Location) error
 }
 
 type Location struct {
